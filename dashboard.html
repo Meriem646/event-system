@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Event System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4f8 100%);
+            margin: 0;
+            padding: 0;
+            color: #2d3436;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .events-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .event-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .event-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .event-content {
+            padding: 1.5rem;
+        }
+        .event-content h3 {
+            margin: 0 0 0.8rem;
+            font-size: 1.4rem;
+            color: #2c3e50;
+        }
+        .event-content p {
+            margin: 0.4rem 0;
+            color: #636e72;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .event-content .description {
+            color: #2d3436;
+            font-style: italic;
+            margin-top: 1rem;
+            border-left: 3px solid #6c5ce7;
+            padding-left: 1rem;
+        }
+        .logout-link {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .logout-link a {
+            color: #6c5ce7;
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        .logout-link a:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Welcome to Your Dashboard!</h1>
+        <div class="logout-link">
+            <a href="logout.php">Logout</a>
+        </div>
+        <div class="events-list">
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f" alt="Technology Workshop" class="event-image">
+                <div class="event-content">
+                    <h3>Technology Workshop</h3>
+                    <p>📅 May 10, 2025</p>
+                    <p>📍 Auditorium Principal, Rue 1, Alger</p>
+                    <p class="description">A hands-on workshop on the latest trends in technology.</p>
+                </div>
+            </div>
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978" alt="Entrepreneurship Seminar" class="event-image">
+                <div class="event-content">
+                    <h3>Entrepreneurship Seminar</h3>
+                    <p>📅 June 15, 2025</p>
+                    <p>📍 Salle 101, Rue 2, Alger</p>
+                    <p class="description">A seminar on business management and entrepreneurship.</p>
+                </div>
+            </div>
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773" alt="Health Conference" class="event-image">
+                <div class="event-content">
+                    <h3>Health Conference</h3>
+                    <p>📅 July 20, 2025</p>
+                    <p>📍 Online</p>
+                    <p class="description">A conference on health and well-being.</p>
+                </div>
+            </div>
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40" alt="Digital Marketing Webinar" class="event-image">
+                <div class="event-content">
+                    <h3>Digital Marketing Webinar</h3>
+                    <p>📅 August 1, 2025</p>
+                    <p>📍 Online</p>
+                    <p class="description">A webinar on digital marketing strategies.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

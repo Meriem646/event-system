@@ -1,0 +1,588 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="text/javascript">
+    var gk_isXlsx = false;
+    var gk_xlsxFileLookup = {};
+    var gk_fileData = {};
+    function filledCell(cell) {
+        return cell !== '' && cell != null;
+    }
+    function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                    row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                    headerRowIndex = 0;
+                }
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error('Error processing XLSX:', e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+    }
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Event System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f4f8 100%);
+            margin: 0;
+            padding: 0;
+            color: #2d3436;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header img {
+            width: 80px;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        .admin-section {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #6c5ce7;
+            box-shadow: 0 0 5px rgba(108, 92, 231, 0.3);
+        }
+        button {
+            padding: 0.75rem 1.2rem;
+            background-color: #6c5ce7;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #5a4ad1;
+            transform: translateY(-2px);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.8rem;
+            border: 1px solid #dfe6e9;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+        }
+        .action-button {
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .import-section {
+            margin-top: 1rem;
+        }
+        .logout-link {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .logout-link a {
+            color: #6c5ce7;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .logout-link a:hover {
+            text-decoration: underline;
+        }
+        .error, .success {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .success {
+            color: #2ecc71;
+        }
+        @media (max-width: 600px) {
+            .admin-container {
+                padding: 0 1rem;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            button, input, textarea, select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="header">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Event System Logo">
+            <h1>Admin Dashboard</h1>
+        </div>
+        <div class="logout-link">
+            <a href="logout.php">Logout</a>
+        </div>
+        <div class="admin-section">
+            <h2>Manage Events</h2>
+            <div id="event-message" class="success"></div>
+            <form id="add-event-form" action="add_event.php" method="post">
+                <div class="form-group">
+                    <label for="event_name">Event Name</label>
+                    <input type="text" id="event_name" name="event_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="event_date">Date</label>
+                    <input type="date" id="event_date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="event_location">Location</label>
+                    <select id="event_location" name="location" required>
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="event_description">Description</label>
+                    <textarea id="event_description" name="description" rows="4" required></textarea>
+                </div>
+                <button type="submit">Add Event</button>
+            </form>
+            <div class="import-section">
+                <h3>Import Events from Excel</h3>
+                <input type="file" id="event-file" accept=".xlsx">
+                <button onclick="importEvents()">Import</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="events-table"></tbody>
+            </table>
+        </div>
+        <div class="admin-section">
+            <h2>Edit Event</h2>
+            <form id="edit-event-form" action="edit_event.php" method="post">
+                <div class="form-group">
+                    <label for="edit_event_id">Event ID</label>
+                    <input type="number" id="edit_event_id" name="event_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_event_name">Event Name</label>
+                    <input type="text" id="edit_event_name" name="event_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_event_date">Date</label>
+                    <input type="date" id="edit_event_date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_event_location">Location</label>
+                    <select id="edit_event_location" name="location" required>
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit_event_description">Description</label>
+                    <textarea id="edit_event_description" name="description" rows="4" required></textarea>
+                </div>
+                <button type="submit">Update Event</button>
+            </form>
+        </div>
+        <div class="admin-section">
+            <h2>Manage Users</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-table"></tbody>
+            </table>
+        </div>
+        <div class="admin-section">
+            <h2>View Registrations</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Registration ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="registrations-table"></tbody>
+            </table>
+        </div>
+        <div class="admin-section">
+            <h2>Add Category</h2>
+            <div id="category-message" class="success"></div>
+            <form id="add-category-form" action="add_category.php" method="post">
+                <div class="form-group">
+                    <label for="category_name">Category Name</label>
+                    <input type="text" id="category_name" name="category_name" required>
+                </div>
+                <button type="submit">Add Category</button>
+            </form>
+        </div>
+        <div class="admin-section">
+            <h2>Add Location</h2>
+            <div id="location-message" class="success"></div>
+            <form id="add-location-form" action="add_location.php" method="post">
+                <div class="form-group">
+                    <label for="location_name">Location Name</label>
+                    <input type="text" id="location_name" name="location_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <button type="submit">Add Location</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Check admin status
+        async function checkAdmin() {
+            try {
+                const response = await fetch('session_check.php');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (!data.loggedIn || !data.isAdmin) {
+                    throw new Error('Admin access required');
+                }
+            } catch (e) {
+                console.error('Error checking admin status:', e.message);
+                alert('Access denied: ' + e.message);
+                window.location.href = 'login.html';
+            }
+        }
+        checkAdmin();
+
+        // Load locations for dropdowns
+        async function loadLocations() {
+            try {
+                const response = await fetch('get_locations.php');
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+                }
+                const locations = await response.json();
+                if (!Array.isArray(locations)) {
+                    throw new Error('Invalid response: Expected JSON array, got: ' + JSON.stringify(locations));
+                }
+                const addLocationSelect = document.getElementById('event_location');
+                const editLocationSelect = document.getElementById('edit_event_location');
+                addLocationSelect.innerHTML = '<option value="">Select Location</option>' + 
+                    locations.map(loc => `<option value="${loc.LocationName}">${loc.LocationName}</option>`).join('');
+                editLocationSelect.innerHTML = '<option value="">Select Location</option>' + 
+                    locations.map(loc => `<option value="${loc.LocationName}">${loc.LocationName}</option>`).join('');
+            } catch (e) {
+                console.error('Error loading locations:', e.message);
+                document.getElementById('event-message').className = 'error';
+                document.getElementById('event-message').textContent = 'Failed to load locations: ' + e.message;
+            }
+        }
+
+        // Load events
+        async function loadEvents() {
+            try {
+                const response = await fetch('events.php');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const events = await response.json();
+                const eventsTable = document.getElementById('events-table');
+                eventsTable.innerHTML = events.map(event => `
+                    <tr>
+                        <td>${event.EventID}</td>
+                        <td>${event.EventName}</td>
+                        <td>${event.Date}</td>
+                        <td>${event.Location ?? ''}</td>
+                        <td>${event.Description ?? ''}</td>
+                        <td>
+                            <button class="action-button" onclick="populateEditForm(${event.EventID}, '${(event.EventName || '').replace(/'/g, "\\'")}', '${event.Date}', '${(event.Location || '').replace(/'/g, "\\'")}', '${(event.Description || '').replace(/'/g, "\\'")}')">Edit</button>
+                            <button class="action-button" onclick="deleteEvent(${event.EventID})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading events:', e.message);
+                document.getElementById('event-message').className = 'error';
+                document.getElementById('event-message').textContent = 'Failed to load events: ' + e.message;
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            try {
+                const response = await fetch('manage_users.php');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const users = await response.json();
+                const usersTable = document.getElementById('users-table');
+                usersTable.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.UserID}</td>
+                        <td>${user.Username}</td>
+                        <td>${user.Email ?? ''}</td>
+                        <td>${user.Phone ?? ''}</td>
+                        <td>
+                            <button class="action-button" onclick="deleteUser(${user.UserID})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading users:', e.message);
+                document.getElementById('event-message').className = 'error';
+                document.getElementById('event-message').textContent = 'Failed to load users: ' + e.message;
+            }
+        }
+
+        // Load registrations
+        async function loadRegistrations() {
+            try {
+                const response = await fetch('view_registrations.php');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const registrations = await response.json();
+                const registrationsTable = document.getElementById('registrations-table');
+                registrationsTable.innerHTML = registrations.map(reg => `
+                    <tr>
+                        <td>${reg.RegistrationID}</td>
+                        <td>${reg.Username}</td>
+                        <td>${reg.Email ?? ''}</td>
+                        <td>${reg.EventName}</td>
+                        <td>${reg.Date}</td>
+                        <td>${reg.Location ?? ''}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading registrations:', e.message);
+                document.getElementById('event-message').className = 'error';
+                document.getElementById('event-message').textContent = 'Failed to load registrations: ' + e.message;
+            }
+        }
+
+        // Import events from Excel
+        async function importEvents() {
+            const fileInput = document.getElementById('event-file');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                gk_fileData['events.xlsx'] = e.target.result.split(',')[1];
+                gk_isXlsx = true;
+                gk_xlsxFileLookup['events.xlsx'] = true;
+                const csv = loadFileData('events.xlsx');
+                try {
+                    const response = await fetch('import_events.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ csv })
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const text = await response.text();
+                    document.getElementById('event-message').className = text.includes('successfully') ? 'success' : 'error';
+                    document.getElementById('event-message').textContent = text;
+                    loadEvents();
+                } catch (e) {
+                    console.error('Error importing events:', e.message);
+                    document.getElementById('event-message').className = 'error';
+                    document.getElementById('event-message').textContent = 'Failed to import events: ' + e.message;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Populate edit form
+        function populateEditForm(id, name, date, location, description) {
+            document.getElementById('edit_event_id').value = id;
+            document.getElementById('edit_event_name').value = name;
+            document.getElementById('edit_event_date').value = date;
+            document.getElementById('edit_event_location').value = location;
+            document.getElementById('edit_event_description').value = description;
+        }
+
+        // Delete event
+        async function deleteEvent(id) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                try {
+                    const response = await fetch(`delete_event.php?event_id=${id}`);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const text = await response.text();
+                    document.getElementById('event-message').className = text.includes('successfully') ? 'success' : 'error';
+                    document.getElementById('event-message').textContent = text;
+                    loadEvents();
+                } catch (e) {
+                    console.error('Error deleting event:', e.message);
+                    document.getElementById('event-message').className = 'error';
+                    document.getElementById('event-message').textContent = 'Failed to delete event: ' + e.message;
+                }
+            }
+        }
+
+        // Delete user
+        async function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const response = await fetch(`delete_user.php?user_id=${id}`);
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const text = await response.text();
+                    document.getElementById('event-message').className = text.includes('successfully') ? 'success' : 'error';
+                    document.getElementById('event-message').textContent = text;
+                    loadUsers();
+                } catch (e) {
+                    console.error('Error deleting user:', e.message);
+                    document.getElementById('event-message').className = 'error';
+                    document.getElementById('event-message').textContent = 'Failed to delete user: ' + e.message;
+                }
+            }
+        }
+
+        // Handle form submissions
+        async function handleFormSubmission(formId, messageId, successCallback) {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const text = await response.text();
+                    const messageDiv = document.getElementById(messageId);
+                    messageDiv.className = text.includes('successfully') ? 'success' : 'error';
+                    messageDiv.textContent = text;
+                    form.reset();
+                    if (successCallback) successCallback();
+                } catch (e) {
+                    console.error(`Error submitting ${formId}:`, e.message);
+                    document.getElementById(messageId).className = 'error';
+                    document.getElementById(messageId).textContent = 'An error occurred: ' + e.message;
+                }
+            });
+        }
+
+        // Initialize
+        handleFormSubmission('add-event-form', 'event-message', loadEvents);
+        handleFormSubmission('edit-event-form', 'event-message', loadEvents);
+        handleFormSubmission('add-category-form', 'category-message');
+        handleFormSubmission('add-location-form', 'location-message', loadLocations);
+        loadLocations();
+        loadEvents();
+        loadUsers();
+        loadRegistrations();
+    </script>
+</body>
+</html>
